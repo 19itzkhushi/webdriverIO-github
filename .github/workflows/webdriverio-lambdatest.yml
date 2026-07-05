@@ -2,14 +2,7 @@ name: Run WebdriverIO Tests on LambdaTest
 
 on:
   push:
-    branches:
-      - main
-      - master
-
-  pull_request:
-    branches:
-      - main
-      - master
+    branches: [main]
 
   workflow_dispatch:
 
@@ -22,10 +15,10 @@ jobs:
       LT_ACCESS_KEY: ${{ secrets.LT_ACCESS_KEY }}
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -33,5 +26,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run WebdriverIO Tests on LambdaTest
+      - name: Verify Secrets
+        run: |
+          echo "Username length: ${#LT_USERNAME}"
+          if [ -z "$LT_USERNAME" ]; then echo "LT_USERNAME missing"; exit 1; fi
+          if [ -z "$LT_ACCESS_KEY" ]; then echo "LT_ACCESS_KEY missing"; exit 1; fi
+
+      - name: Run WebdriverIO
         run: npx wdio conf/single.conf.js
